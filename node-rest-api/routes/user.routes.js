@@ -1,30 +1,28 @@
 const express = require('express'); 
 const userRoute = express();
 const registerUser=require('../controller/SignUpController')
+const verifyUser=require("../controller/LoginController")
+const User=require('../model/user')
 cors = require('cors');
 userRoute.use(cors());
 
 
 // Add User
 userRoute.get('/add-user',(req, res) => {
-    res.render('add-user');
+    //res.render('add-user');
 });
 
 userRoute.post('/add-user',registerUser.registerUser);
 //userRoute.post('/register',registerUser.registerUser);
 
- 
-// // Get all Users
-// userRoute.route('/').get((req, res) => {
-//     User.find((error, data) => {
-//     if (error) {
-//       return next(error)
-//     } else {
-//       res.json(data)
-//       console.log('Users found!')
-//     }
-//   })
-// })
+
+// verify a user
+userRoute.get('/login',(req, res) => {
+    //res.render('login');
+})
+userRoute.post('/login',verifyUser.verifyUser);
+
+
  
 // // Get 1 user
 // userRoute.route('/user/:id').get((req, res) => {
