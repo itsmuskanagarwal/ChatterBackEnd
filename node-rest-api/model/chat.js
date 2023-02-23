@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const chatSchema = new mongoose.Schema({
+const chatSchema = new Schema({
   sender: {
-    type: string,
+    type: String,
     required: true
   },
   receiver: {
-    type: string,
+    type: String,
     required: true
   },
   message: {
@@ -24,4 +25,4 @@ const chatSchema = new mongoose.Schema({
   }
 });
 
-const Chat = mongoose.model('Chat', chatSchema);
+module.exports = mongoose.model('chats', chatSchema)
