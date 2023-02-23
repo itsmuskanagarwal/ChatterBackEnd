@@ -13,7 +13,7 @@ userRoute.get('/add-user',(req, res) => {
 });
 
 userRoute.post('/add-user',registerUser.registerUser);
-//userRoute.post('/register',registerUser.registerUser); \
+//userRoute.post('/register',registerUser.registerUser);
 
 
 // verify a user
