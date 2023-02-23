@@ -7,18 +7,13 @@ cors = require('cors');
 userRoute.use(cors());
 
 
-// socket.io
-// userRoute.get('/socket.io',(req, res) => {
-//   //res.render('add-user');
-// });
-
 // Add User
 userRoute.get('/add-user',(req, res) => {
     //res.render('add-user');
 });
 
 userRoute.post('/add-user',registerUser.registerUser);
-//userRoute.post('/register',registerUser.registerUser);
+//userRoute.post('/register',registerUser.registerUser); \
 
 
 // verify a user
@@ -40,34 +35,31 @@ userRoute.route('/find-user').get((req, res) => {
 
 
  
-// Get users
-userRoute.route('/find-users').get((req, res) => {
-    User.find({}, (error, data) => {
-    if (error) {
-      return next(error)
-    } else {
-      res.json(data)
-    }
-  })
-})
+// // Get 1 user
+// userRoute.route('/user/:id').get((req, res) => {
+//     User.findById(req.params.id, (error, data) => {
+//     if (error) {
+//       return next(error)
+//     } else {
+//       res.json(data)
+//     }
+//   })
+// })
  
 // // Update user
-userRoute.get('/update-user',(req, res) => {
-    //res.render('login');
-});
-
-userRoute.put('/update-user',(req, res, next) => {
-    User.findOneAndUpdate({email:req.body.email}, {
-    $set: req.body
-  }, (error, data) => {
-    if (error) {
-      return next(error);
-    } else {
-      res.json(data)
-      console.log('User updated successfully!')
-    }
-  })
-})
+// userRoute.route('/update-user/:id').put((req, res, next) => {
+//     User.findUserAndUpdate(req.params.id, {
+//     $set: req.body
+//   }, (error, data) => {
+//     if (error) {
+//       return next(error);
+//       console.log(error)
+//     } else {
+//       res.json(data)
+//       console.log('User updated successfully!')
+//     }
+//   })
+// })
  
  
 module.exports = userRoute;

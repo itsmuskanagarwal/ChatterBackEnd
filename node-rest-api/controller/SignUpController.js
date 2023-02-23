@@ -19,8 +19,7 @@ const registerUser = async(req, res) => {
         name:req.body.username,
         contact:req.body.contact,
         email:req.body.email,
-        password:password,
-        displayname:req.body.username
+        password:password
       })
 
       const result=await user.save();
