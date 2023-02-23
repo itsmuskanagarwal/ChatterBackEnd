@@ -13,7 +13,7 @@ userRoute.get('/add-user',(req, res) => {
 });
 
 userRoute.post('/add-user',registerUser.registerUser);
-//userRoute.post('/register',registerUser.registerUser);
+//userRoute.post('/register',registerUser.registerUser); \
 
 
 // verify a user
@@ -21,6 +21,17 @@ userRoute.get('/login',(req, res) => {
     //res.render('login');
 })
 userRoute.post('/login',verifyUser.verifyUser);
+
+// Get users
+userRoute.route('/find-user').get((req, res) => {
+    User.find({}, (error, data) => {
+    if (error) {
+      return next(error)
+    } else {
+      res.json(data)
+    }
+  })
+})
 
 
  

@@ -2,12 +2,12 @@ const mongoose = require('mongoose');
 
 const chatSchema = new mongoose.Schema({
   sender: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user'
+    type: string,
+    required: true
   },
   receiver: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user'
+    type: string,
+    required: true
   },
   message: {
     type: String,
