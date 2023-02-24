@@ -19,6 +19,15 @@ const previousMessages = Message.find({ $and :[ { $or: [{ sender: currentUser, r
     } else {
       console.log("Found all"+messages)
     }
+
+    Message.updateMany({sender: selectedUser, reciever: currentUser, deliveryStatus : "not delivered" }, { $set: { deliveryStatus: "delivered" } }, (err, result) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(result);
+      }
+    });
+    
   });
 
   // establish Socket.IO connection
@@ -32,7 +41,7 @@ io.on('connection', (socket) => {
     // check if recipient is online
     if (io.sockets.connected[data.recipientId]) {
       // recipient is online, send message in real-time
-      io.to(data.recipientId).emit('message', data.message);
+      io.to(data.recipient).emit('message', data.message);
 
       // store message in database
       const message = new Message({
