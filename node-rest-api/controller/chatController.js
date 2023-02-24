@@ -37,10 +37,17 @@ const newMessage = async (req, res) => {
         { sender: req.body.selectedUser, reciever: req.body.currentUser },
         { deliveryStatus: "not delivered" },
       ],
-    },'message');
 
-    // console.log(newMsg)
-    res.json(newMsg.message);
+    });
+    Message.updateMany({sender: selectedUser, reciever: currentUser, deliveryStatus : "not delivered" }, { $set: { deliveryStatus: "delivered" } }, (err, result) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(result);
+      }
+    });
+    
+    res.json(newMsg);
   } catch (err) {
     res.send("Error: " + err);
   }
