@@ -33,11 +33,11 @@ app.use(cors());
 
 io.on('connection', (socket) => {
   console.log('New client connected');
-
+  
   // Listen for incoming messages from the client
   socket.on('message', (data) => {
     console.log(`Received message: ${data}`);
-
+    
     // Broadcast the message to all connected clients
     io.emit('message', data);
   });

@@ -2,35 +2,24 @@ const express = require('express');
 const userRoute = express();
 const registerUser=require('../controller/SignUpController')
 const verifyUser=require("../controller/LoginController")
+const chatStore=require("../controller/chatController")
 const User=require('../model/user')
 cors = require('cors');
 userRoute.use(cors());
 
 
-// socket.io
-// userRoute.get('/socket.io',(req, res) => {
-//   //res.render('add-user');
-// });
-
 // Add User
-userRoute.get('/add-user',(req, res) => {
-    //res.render('add-user');
-});
-
 userRoute.post('/add-user',registerUser.registerUser);
 //userRoute.post('/register',registerUser.registerUser);
 
 
 // verify a user
-userRoute.get('/login',(req, res) => {
-    //res.render('login');
-})
 userRoute.post('/login',verifyUser.verifyUser);
 
 
  
 // Get users
-userRoute.route('/find-users').get((req, res) => {
+userRoute.get('/find-users',(req, res) => {
     User.find({}, (error, data) => {
     if (error) {
       return next(error)
@@ -41,9 +30,6 @@ userRoute.route('/find-users').get((req, res) => {
 })
  
 // // Update user
-userRoute.get('/update-user',(req, res) => {
-    //res.render('login');
-});
 
 userRoute.put('/update-user',(req, res, next) => {
     User.findOneAndUpdate({email:req.body.email}, {
@@ -57,6 +43,15 @@ userRoute.put('/update-user',(req, res, next) => {
     }
   })
 })
- 
+
+//Chat new msgs
+userRoute.post('/chat-new-msgs',chatStore.newMessage);
+
+//Chat prev msgs
+userRoute.post('/chat-all-msgs',chatStore.prevMessages);
+
+//Send msgs
+userRoute.post('/chat-send',chatStore.storeMessage);
+
  
 module.exports = userRoute;
