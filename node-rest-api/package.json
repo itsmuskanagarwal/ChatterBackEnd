@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./node-backend/server.js"
+    "dev": "nodemon ./node-backend/server.js",
+    "pretty": "prettier --write \"./**/*.{ts,js,html,css}\""
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "nodemon": "^2.0.20",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
+    "prettier": "^2.8.4",
     "socket.io": "^4.6.1"
   }
 }
