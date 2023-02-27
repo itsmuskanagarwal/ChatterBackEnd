@@ -37,12 +37,17 @@ io.on("connection", (socket) => {
 
   socket.on("join-room", (data) => {
     // Broadcast the message to particular connected client
+    console.log(`Socket ${socket.id} joining room ${data}`);
+    console.log(data);
     socket.join(data);
   });
 
   // Listen for incoming messages from the client
   socket.on("message", (data) => {
     console.log(`Received message: ${data}`);
+    console.log(data[0]);
+
+    io.in(data[0]).emit("message", data);
 
     // Broadcast the message to all connected clients
     // io.emit('message', (data));
@@ -71,6 +76,7 @@ io.on("connection", (socket) => {
   // Listen for disconnections
   socket.on("disconnect", () => {
     console.log("Client disconnected");
+    socket.leaveAll();
   });
 });
 
