@@ -1,15 +1,15 @@
 const express = require("express");
 const http = require("http");
-const socketio = require("socket.io"); // real-time communication with connected clients
+const socketio = require("socket.io");
 const Message = require("./model/chat");
 
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", true);
 
 const cors = require("cors");
-bodyParser = require("body-parser"); //parsing the request bodies
+bodyParser = require("body-parser");
 
-const dotenv = require("dotenv"); //sets up the environment variables
+const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
@@ -21,7 +21,7 @@ app.use(
 );
 
 const server = http.createServer(app);
-const io = socketio(server, {         // instance of the Socket.IO server
+const io = socketio(server, {
   cors: {
     origin: "http://localhost:4200", // Replace with your Angular app's origin
     methods: ["GET", "POST"],
@@ -32,18 +32,22 @@ const io = socketio(server, {         // instance of the Socket.IO server
 
 app.use(cors());
 
-//listens for incoming connections from clients 
 io.on("connection", (socket) => {
   console.log("New client connected");
 
   socket.on("join-room", (data) => {
     // Broadcast the message to particular connected client
+    console.log(`Socket ${socket.id} joining room ${data}`);
+    console.log(data);
     socket.join(data);
   });
 
   // Listen for incoming messages from the client
   socket.on("message", (data) => {
     console.log(`Received message: ${data}`);
+    console.log(data[0]);
+
+    io.to(data[0]).emit("message", data);
 
     // Broadcast the message to all connected clients
     // io.emit('message', (data));
@@ -72,6 +76,7 @@ io.on("connection", (socket) => {
   // Listen for disconnections
   socket.on("disconnect", () => {
     console.log("Client disconnected");
+    socket.leaveAll();
   });
 });
 

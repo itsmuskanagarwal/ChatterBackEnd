@@ -3,6 +3,7 @@ const userRoute = express();
 const registerUser = require("../controller/SignUpController");
 const verifyUser = require("../controller/LoginController");
 const chatStore = require("../controller/chatController");
+const submitQuery =  require("../controller/queryController")
 const User = require("../model/user");
 cors = require("cors");  //for handling Cross-Origin Resource Sharing (CORS) issues
 userRoute.use(cors());
@@ -12,6 +13,9 @@ userRoute.post("/add-user", registerUser.registerUser);
 
 // verify a user
 userRoute.post("/login", verifyUser.verifyUser);
+
+// Add query
+userRoute.post("/add-query", submitQuery.submitQuery);
 
 // Get users
 userRoute.get("/find-users", (req, res) => {
