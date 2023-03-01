@@ -1,0 +1,30 @@
+{
+  "name": "rest-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./node-backend/server.js",
+    "pretty": "prettier --write \"./**/*.{ts,js,html,css}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/socket.io": "^3.0.2",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.1",
+    "circular-json": "^0.5.9",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mongoose": "^6.9.1",
+    "nodemon": "^2.0.20",
+    "passport": "^0.6.0",
+    "passport-local": "^1.0.0",
+    "prettier": "^2.8.4",
+    "socket.io": "^4.6.1"
+  }
+}
