@@ -1,16 +1,16 @@
-const dotenv = require("dotenv");
-dotenv.config();
-
 const express = require("express");
 const http = require("http");
 const socketio = require("socket.io");
-const Message = require("./model/chat"); 
+const Message = require("./model/chat");
 
 const mongoose = require("mongoose");
 mongoose.set("strictQuery", true);
 
 const cors = require("cors");
 bodyParser = require("body-parser");
+
+const dotenv = require("dotenv");
+dotenv.config();
 
 const app = express();
 app.use(bodyParser.json());
@@ -19,7 +19,8 @@ app.use(
     extended: false,
   })
 );
-app.use(cors());
+
+let onlineUsers = [];
 
 const server = http.createServer(app);
 const io = socketio(server, {
@@ -31,7 +32,7 @@ const io = socketio(server, {
   },
 });
 
-
+app.use(cors());
 
 io.on("connection", (socket) => {
   console.log("New client connected");
@@ -48,10 +49,36 @@ io.on("connection", (socket) => {
     console.log(`Received message: ${data}`);
     console.log(data[0]);
 
-    io.to(data[0]).emit("message", data);
+    let flag=true;
+    if (onlineUsers.length > 0) {
+      for (let i=0;i<onlineUsers.length;i++) {
+        console.log("User: " + onlineUsers[i].email, socket.id);
+        // console.log(socket.id);
+        console.log(i,onlineUsers[i].sktID)
+
+        if (onlineUsers[i].sktID == socket.id) {
+          console.log("in "+socket.id);
+          flag=true
+        }else{
+          flag=false;
+        }
+      }
+        if(!flag){
+          console.log("else");
+          onlineUsers.push({ email: data[2], sktID: socket.id });
+          console.log(onlineUsers);
+        }
+      
+    } else {
+      console.log("in else");
+      onlineUsers.push({ email: data[2], sktID: socket.id });
+      console.log(onlineUsers);
+    }
 
     // Broadcast the message to all connected clients
-    // io.emit('message', (data));
+    io.in(data[0]).emit("message", data);
+
+    io.emit("onlineSockets", onlineUsers);
 
     //update the message array of the users in the particular room
     Message.findById(data[0], (err, conversation) => {
@@ -77,7 +104,9 @@ io.on("connection", (socket) => {
   // Listen for disconnections
   socket.on("disconnect", () => {
     console.log("Client disconnected");
-    socket.leaveAll();
+    onlineUsers = onlineUsers.filter((id) => id.sktID !== socket.id);
+    console.log(onlineUsers);
+    io.emit("onlineSockets", onlineUsers);
   });
 });
 
