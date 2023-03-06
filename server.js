@@ -10,6 +10,7 @@ const cors = require("cors");
 bodyParser = require("body-parser");
 
 const dotenv = require("dotenv");
+const { count } = require("console");
 dotenv.config();
 
 const app = express();
@@ -20,6 +21,7 @@ app.use(
   })
 );
 
+let deliveryStatus = "not delivered";
 let onlineUsers = [];
 
 const server = http.createServer(app);
@@ -34,8 +36,126 @@ const io = socketio(server, {
 
 app.use(cors());
 
-io.on("connection", (socket) => {
-  console.log("New client connected");
+io.on("connection", async (socket) => {
+  
+  //Listen for chat count
+  // socket.on("chatCount",(data)=>{
+  //   console.log(data);
+
+  //   // Message.aggregate([
+  //   //   // Filter by the person's email and the message delivery status
+  //   //   { $match: { 
+  //   //       people: {$all:[data.selectedUser,data.currentUser]}, 
+  //   //       'messages.deliveryStatus': 'not delivered' ,
+  //   //       'messages.sender': data.selectedUser,
+  //   //   }},
+  //   //   // Unwind the messages array to get one document per message
+  //   //   { $unwind: '$messages' },
+  //   //   // Count the number of messages
+  //   //   { $count: 'messageCount' }
+  //   // ]).exec((err, result) => {
+  //   //   if (err) {
+  //   //     // Handle the error
+  //   //     console.log(err);
+  //   //   } else {
+  //   //     // Assign the messageCount value to a variable
+  //   //     if (result.length > 0) {
+  //   //       // Assign the messageCount value to a variable
+  //   //       const messageCount = result[0].messageCount;
+  //   //       console.log(`The person has ${messageCount} undelivered messages.`);
+  //   //       socket.emit("chatCount",messageCount);
+  //   //     } else {
+  //   //       const messageCount = '';
+  //   //       socket.emit("chatCount",messageCount);
+  //   //       console.log(`No undelivered messages found for the person.`);
+  //   //     }
+  //   //   }
+  //   // });
+    
+    
+  //   Message.aggregate([
+  //     // Filter by the person's email and the message delivery status
+  //     { $match: { 
+  //         people: { $all: [data.selectedUser, data.currentUser] },
+  //         'messages.deliveryStatus': 'not delivered' ,
+  //         'messages.sender': data.selectedUser,
+  //     }},
+  //     // // Unwind the messages array to get one document per message
+  //     { $unwind: '$messages' },
+  //    // Count the number of messages
+  //    { $count: 'messageCount' }
+  //   ]).exec((err, result) => {
+  //     if (err) {
+  //       // Handle the error
+  //       console.log(err);
+  //     } else {
+  //       console.log(result);
+  //       // Assign the messageCount value to a variable
+  //       if (result.length > 0) {
+  //         // Assign the messageCount value to a variable
+  //         const messageCount = result[0].messageCount;
+  //         console.log(`The person has ${messageCount} undelivered messages.`);
+  //         socket.emit("chatCount",messageCount);
+  //       } else {
+  //         const messageCount = '';
+  //         socket.emit("chatCount",messageCount);
+  //         console.log(`No undelivered messages found for the person.`);
+  //       }
+  //     }
+  //   });
+    
+
+  //   const query= {
+  //     $and: [
+  //       {people:{
+  //         $in:[data]}
+  //       },
+  //       { messages: { deliveryStatus: "not delivered" } },
+  //     ]
+  //   };
+  //   console.log("query",{query})
+  //   Message.find(query)
+  // // .select('messages')
+  // .exec((err, messages) => {
+  //   if (err) {
+  //     console.error(err);
+  //   } else {
+  //     chatCount=messages.length;
+  //     console.log(messages);
+  //     console.log(`There are ${messages.length} undelivered messages.`);
+  //   }
+  // });
+  // })
+  
+  
+  //Listen for online Users
+  socket.on("onlineSockets", (data) => {
+    let flag = true;
+    if (onlineUsers.length > 0) {
+      for (let i = 0; i < onlineUsers.length; i++) {
+        console.log("User: " + onlineUsers[i].email, socket.id);
+        // console.log(socket.id);
+        
+        if (onlineUsers[i].sktID == socket.id) {
+          console.log("in " + socket.id);
+          flag = true;
+        } else {
+          flag = false;
+        }
+      }
+      if (!flag) {
+        onlineUsers.push({ email: data, sktID: socket.id });
+        console.log("New client connected");
+        console.log(onlineUsers);
+      }
+    } else {
+      console.log("in else");
+      onlineUsers.push({ email: data, sktID: socket.id });
+      console.log(onlineUsers);
+    }
+  });
+
+  io.emit("onlineSockets", onlineUsers);
 
   socket.on("join-room", (data) => {
     // Broadcast the message to particular connected client
@@ -49,36 +169,17 @@ io.on("connection", (socket) => {
     console.log(`Received message: ${data}`);
     console.log(data[0]);
 
-    let flag=true;
-    if (onlineUsers.length > 0) {
-      for (let i=0;i<onlineUsers.length;i++) {
-        console.log("User: " + onlineUsers[i].email, socket.id);
-        // console.log(socket.id);
-        console.log(i,onlineUsers[i].sktID)
-
-        if (onlineUsers[i].sktID == socket.id) {
-          console.log("in "+socket.id);
-          flag=true
-        }else{
-          flag=false;
-        }
-      }
-        if(!flag){
-          console.log("else");
-          onlineUsers.push({ email: data[2], sktID: socket.id });
-          console.log(onlineUsers);
-        }
-      
-    } else {
-      console.log("in else");
-      onlineUsers.push({ email: data[2], sktID: socket.id });
-      console.log(onlineUsers);
-    }
-
     // Broadcast the message to all connected clients
     io.in(data[0]).emit("message", data);
 
-    io.emit("onlineSockets", onlineUsers);
+    if (onlineUsers.length > 0) {
+      for (let i = 0; i < onlineUsers.length; i++) {
+        if (onlineUsers[i].email == data[1]) {
+          deliveryStatus = "delivered";
+          break;
+        }
+      }
+    }
 
     //update the message array of the users in the particular room
     Message.findById(data[0], (err, conversation) => {
@@ -89,6 +190,7 @@ io.on("connection", (socket) => {
           message: data[3],
           timestamp: Date.now(),
           sender: data[2],
+          deliveryStatus: deliveryStatus,
         });
         conversation.save(function (err, conversation) {
           if (err) {

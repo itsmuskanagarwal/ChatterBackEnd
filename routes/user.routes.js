@@ -28,6 +28,9 @@ userRoute.get("/find-users", (req, res) => {
   });
 });
 
+// Get Chat count
+userRoute.post("/chat-count", chatStore.chatCount);
+
 //Updates a user's information in the database 
 userRoute.put("/update-user", (req, res, next) => {
   User.findOneAndUpdate(

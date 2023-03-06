@@ -38,6 +38,40 @@ const prevMessages = async (req, res) => {
   }
 };
 
+const chatCount = async (req, res) => {
+  await Message.aggregate([
+    // Filter by the person's email and the message delivery status
+    { $match: { 
+        people: { $all: [req.body.selectedUser, req.body.currentUser] },
+        'messages.deliveryStatus': 'not delivered' ,
+        'messages.sender': req.body.selectedUser,
+    }},
+    // // Unwind the messages array to get one document per message
+    { $unwind: '$messages' },
+   // Count the number of messages
+   { $count: 'messageCount' }
+  ]).exec((err, result) => {
+    if (err) {
+      // Handle the error
+      console.log(err);
+    } else {
+      console.log(result);
+      // Assign the messageCount value to a variable
+      if (result.length > 0) {
+        // Assign the messageCount value to a variable
+        const messageCount = result[0].messageCount;
+        console.log(`The person has ${messageCount} undelivered messages.`);
+        res.json(messageCount);
+      } else {
+        const messageCount = '';
+        res.json(messageCount);
+        console.log(`No undelivered messages found for the person.`);
+      }
+    }
+  });
+}
+
 module.exports = {
-  prevMessages
+  prevMessages,
+  chatCount
 };

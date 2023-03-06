@@ -21,11 +21,11 @@ const chatSchema = new Schema({
         type: String,
         required: true,
       },
-      // deliveryStatus: {
-      //   type: String,
-      //   enum: ['delivered', 'not delivered'],
-      //   default: 'not delivered'
-      // }
+      deliveryStatus: {
+        type: String,
+        enum: ['delivered', 'not delivered'],
+        default: 'not delivered'
+      }
     },
   ],
 });
