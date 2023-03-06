@@ -24,13 +24,13 @@ const hash='';
       displayname: req.body.username,
     });
 
-    const token = await user.generateAuthToken();
-    console.log("signin:"+token)
+    // const token = await user.generateAuthToken();
+    // console.log("signin:"+token)
 
-    res.cookie("jwt", token,{
-      expires: new Date(Date.now() + 30000),
-      httpOnly: true
-    });
+    // res.cookie("jwt", token,{
+    //   expires: new Date(Date.now() + 30000),
+    //   httpOnly: true
+    // });
 
     const result = await user.save();
     console.log(result)
