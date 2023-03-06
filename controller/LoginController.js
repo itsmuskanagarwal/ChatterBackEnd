@@ -13,8 +13,8 @@ const verifyUser = async (req, res) => {
     const result = await User.findOne({ email: req.body.email }); //retrieves all documents that match the provided email address
     console.log("result"+result)
 
-    const token = await result.generateAuthToken();
-    console.log("login: "+ token)
+    // const token = await result.generateAuthToken();
+    // console.log("login: "+ token)
 
     // res.cookie("jwt", token,{
     //   expires: new Date(Date.now() + 50000),
