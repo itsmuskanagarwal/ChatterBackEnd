@@ -37,106 +37,15 @@ const io = socketio(server, {
 app.use(cors());
 
 io.on("connection", async (socket) => {
-  
-  //Listen for chat count
-  // socket.on("chatCount",(data)=>{
-  //   console.log(data);
-
-  //   // Message.aggregate([
-  //   //   // Filter by the person's email and the message delivery status
-  //   //   { $match: { 
-  //   //       people: {$all:[data.selectedUser,data.currentUser]}, 
-  //   //       'messages.deliveryStatus': 'not delivered' ,
-  //   //       'messages.sender': data.selectedUser,
-  //   //   }},
-  //   //   // Unwind the messages array to get one document per message
-  //   //   { $unwind: '$messages' },
-  //   //   // Count the number of messages
-  //   //   { $count: 'messageCount' }
-  //   // ]).exec((err, result) => {
-  //   //   if (err) {
-  //   //     // Handle the error
-  //   //     console.log(err);
-  //   //   } else {
-  //   //     // Assign the messageCount value to a variable
-  //   //     if (result.length > 0) {
-  //   //       // Assign the messageCount value to a variable
-  //   //       const messageCount = result[0].messageCount;
-  //   //       console.log(`The person has ${messageCount} undelivered messages.`);
-  //   //       socket.emit("chatCount",messageCount);
-  //   //     } else {
-  //   //       const messageCount = '';
-  //   //       socket.emit("chatCount",messageCount);
-  //   //       console.log(`No undelivered messages found for the person.`);
-  //   //     }
-  //   //   }
-  //   // });
-    
-    
-  //   Message.aggregate([
-  //     // Filter by the person's email and the message delivery status
-  //     { $match: { 
-  //         people: { $all: [data.selectedUser, data.currentUser] },
-  //         'messages.deliveryStatus': 'not delivered' ,
-  //         'messages.sender': data.selectedUser,
-  //     }},
-  //     // // Unwind the messages array to get one document per message
-  //     { $unwind: '$messages' },
-  //    // Count the number of messages
-  //    { $count: 'messageCount' }
-  //   ]).exec((err, result) => {
-  //     if (err) {
-  //       // Handle the error
-  //       console.log(err);
-  //     } else {
-  //       console.log(result);
-  //       // Assign the messageCount value to a variable
-  //       if (result.length > 0) {
-  //         // Assign the messageCount value to a variable
-  //         const messageCount = result[0].messageCount;
-  //         console.log(`The person has ${messageCount} undelivered messages.`);
-  //         socket.emit("chatCount",messageCount);
-  //       } else {
-  //         const messageCount = '';
-  //         socket.emit("chatCount",messageCount);
-  //         console.log(`No undelivered messages found for the person.`);
-  //       }
-  //     }
-  //   });
-    
-
-  //   const query= {
-  //     $and: [
-  //       {people:{
-  //         $in:[data]}
-  //       },
-  //       { messages: { deliveryStatus: "not delivered" } },
-  //     ]
-  //   };
-  //   console.log("query",{query})
-  //   Message.find(query)
-  // // .select('messages')
-  // .exec((err, messages) => {
-  //   if (err) {
-  //     console.error(err);
-  //   } else {
-  //     chatCount=messages.length;
-  //     console.log(messages);
-  //     console.log(`There are ${messages.length} undelivered messages.`);
-  //   }
-  // });
-  // })
-  
-  
-  //Listen for online Users
-  socket.on("onlineSockets", (data) => {
+  socket.on("reconnection", (data) => {
     let flag = true;
+    console.log("reconnected to server");
     if (onlineUsers.length > 0) {
       for (let i = 0; i < onlineUsers.length; i++) {
         console.log("User: " + onlineUsers[i].email, socket.id);
         // console.log(socket.id);
-        
-        if (onlineUsers[i].sktID == socket.id) {
+
+        if (onlineUsers[i].sktID == socket.id || onlineUsers[i].email == data) {
           console.log("in " + socket.id);
           flag = true;
         } else {
@@ -144,18 +53,47 @@ io.on("connection", async (socket) => {
         }
       }
       if (!flag) {
-        onlineUsers.push({ email: data, sktID: socket.id });
         console.log("New client connected");
+        onlineUsers.push({ email: data, sktID: socket.id });
         console.log(onlineUsers);
       }
     } else {
-      console.log("in else");
+      console.log("New client connected");
+      // console.log("in else");
       onlineUsers.push({ email: data, sktID: socket.id });
       console.log(onlineUsers);
     }
   });
 
-  io.emit("onlineSockets", onlineUsers);
+  //Listen for online Users
+  socket.on("onlineSockets", (data) => {
+    let flag = true;
+    if (onlineUsers.length > 0) {
+      for (let i = 0; i < onlineUsers.length; i++) {
+        console.log("User: " + onlineUsers[i].email, socket.id);
+        // console.log(socket.id);
+
+        if (onlineUsers[i].sktID == socket.id || onlineUsers[i].email == data) {
+          console.log("in " + socket.id);
+          flag = true;
+        } else {
+          flag = false;
+        }
+      }
+      if (!flag) {
+        console.log("New client connected");
+        onlineUsers.push({ email: data, sktID: socket.id });
+        console.log(onlineUsers);
+      }
+    } else {
+      console.log("New client connected");
+      // console.log("in else");
+      onlineUsers.push({ email: data, sktID: socket.id });
+      console.log(onlineUsers);
+    }
+    io.emit("onlineSockets", onlineUsers);
+  });
+
 
   socket.on("join-room", (data) => {
     // Broadcast the message to particular connected client
@@ -205,10 +143,20 @@ io.on("connection", async (socket) => {
 
   // Listen for disconnections
   socket.on("disconnect", () => {
-    console.log("Client disconnected");
+    if (onlineUsers.some((id) => id.sktID === socket.id)) {
+      onlineUsers = onlineUsers.filter((id) => id.sktID !== socket.id);
+      console.log(onlineUsers);
+      io.emit("onlineSockets", onlineUsers);
+      console.log("Client disconnected");
+    }
+  });
+
+  socket.on("disconnection", () => {
+    console.log(socket.id);
     onlineUsers = onlineUsers.filter((id) => id.sktID !== socket.id);
     console.log(onlineUsers);
     io.emit("onlineSockets", onlineUsers);
+    console.log("Client disconnected");
   });
 });
 

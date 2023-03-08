@@ -33,6 +33,9 @@ userRoute.get("/find-users", (req, res) => {
 
 // Get Chat count
 userRoute.post("/chat-count", chatStore.chatCount);
+
+//update msg delivery status
+userRoute.post("/update-status", chatStore.updateStatus);
 // Get user's avatar
 userRoute.get("/find-user-avatar", (req, res) => {
 
