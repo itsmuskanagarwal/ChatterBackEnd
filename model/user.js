@@ -25,7 +25,8 @@ let user = new Schema(
       type: String,
     },
     profilePicture  :{
-      type : String
+      type : String,
+      default : "/assets/profile-img.jpg"
     }
   },
   {
